@@ -51,58 +51,47 @@ regd_users.post("/login", (req,res) => {
 });
 
 // Add a book review
-regd_users.put("/auth/review/:isbn", (req, res) => {
+regd_users.put("/auth/review/:isbn", authenticateJWT, (req, res) => {
     const isbn = req.params.isbn;
-    const username = req.session.username;
-    const review = req.body.review;  // assuming review is sent in the request body
-  
-  
-    if (!username) {
-      return res.status(401).send("User not logged in.");
-    }
-  
-  
+    const username = req.user.username;  // get username from verified token
+    const review = req.body.review;
+
     if (!isbn || !review) {
-      return res.status(400).send("ISBN and review are required.");
+        return res.status(400).send("ISBN and review are required.");
     }
-  
-  
+
     if (!books[isbn]) {
-      return res.status(404).send("Book not found.");
+        return res.status(404).send("Book not found.");
     }
-  
-  
+
     if (!books[isbn].reviews) {
-      books[isbn].reviews = {};
+        books[isbn].reviews = {};
     }
-  
-  
+
     // Add or update the user's review for this ISBN
     books[isbn].reviews[username] = review;
-  
-  
+
     res.status(200).send(`Review for ISBN ${isbn} by user ${username} has now been added/updated.`);
-  });
+});
   
 
-  regd_users.delete("/auth/review/:isbn", (req, res) => {
+regd_users.delete("/auth/review/:isbn", authenticateJWT, (req, res) => {
     const isbn = req.params.isbn;
-    const username = req.session.username; // get user's username
-  
-    // Check if the book exists in the reviews object
+    const username = req.user.username; // get username from verified token
+
     if (books[isbn]) {
-      // Filter out the review(s) by this user for this book
-      const reviews = books[isbn].reviews;
-      
-      if (reviews[username]) {
-        delete reviews[username]; // delete review       res.send(`Review for user ${username} has been deleted.`);
-      } else {
-        res.status(404).send("No review found for this user.");
-      }
+        const reviews = books[isbn].reviews;
+
+        if (reviews && reviews[username]) {
+            delete reviews[username]; // delete the user's review
+            return res.send(`Review for user ${username} has been deleted.`);
+        } else {
+            return res.status(404).send("No review found for this user.");
+        }
     } else {
-      res.status(404).send("Book not found.");
+        return res.status(404).send("Book not found.");
     }
-  });
+});
   
 
 module.exports.authenticated = regd_users;
