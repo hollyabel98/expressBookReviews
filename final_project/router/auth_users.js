@@ -9,6 +9,24 @@ const isValid = (username) => {
     return users.some((user) => user.username === username);
   }
 
+  const authenticateJWT = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+
+    if (authHeader) {
+        const token = authHeader.split(' ')[1]; // Expecting "Bearer <token>"
+
+        jwt.verify(token, "access", (err, user) => {
+            if (!err) {
+                req.user = user; // Attach user info to request object
+                next();
+            } else {
+                return res.status(403).json({ message: "User not authenticated" });
+            }
+        });
+    } else {
+        return res.status(403).json({ message: "User not logged in" });
+    }
+};
 const authenticatedUser = (username,password)=>{ //returns boolean
 // Check if the user with the given username and password exists
     // Filter the users array for any user with the same username and password
