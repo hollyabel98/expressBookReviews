@@ -69,12 +69,12 @@ regd_users.post("/login", (req,res) => {
 });
 
 // Add a book review
-regd_users.put("/auth/review/:isbn", authenticateJWT, (req, res) => {
+regd_users.post("/auth/review/:isbn", authenticateJWT, (req, res) => {
     const isbn = req.params.isbn;
-    const username = req.user.username;  // get username from verified token
-    const review = req.body.review;
+    const username = req.user.username;
+    const userReview = req.query.review;
 
-    if (!isbn || !review) {
+    if (!isbn || !userReview) {
         return res.status(400).send("ISBN and review are required.");
     }
 
@@ -86,12 +86,12 @@ regd_users.put("/auth/review/:isbn", authenticateJWT, (req, res) => {
         books[isbn].reviews = {};
     }
 
-    // Add or update the user's review for this ISBN
-    books[isbn].reviews[username] = review;
+    // Add or update the review for this user
+    books[isbn].reviews[username] = userReview;
 
-    res.status(200).send(`Review for ISBN ${isbn} by user ${username} has now been added/updated.`);
+    res.status(200).send(`Review for ISBN ${isbn} by user ${username} has been added/updated.`);
 });
-  
+
 
 regd_users.delete("/auth/review/:isbn", authenticateJWT, (req, res) => {
     const isbn = req.params.isbn;
