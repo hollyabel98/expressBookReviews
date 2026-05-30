@@ -30,14 +30,36 @@ public_users.post("/register", (req,res) => {
 
 // Get the book list available in the shop
 public_users.get('/', function (req, res) {
-    res.send(JSON.stringify(books, null, 4));
-});
+    new Promise((resolve, reject) => {
+      resolve(JSON.stringify(books));
+    })
+    .then((successMessage) => {
+      console.log("From Callback " + successMessage);
+      res.send(successMessage);  
+    })
+    .catch((error) => {
+      return res.status(400).json({ message: error });
+    });
+  });
+  
 
 // Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
-     const isbn = req.params.isbn;
-      res.send(books[isbn]);
-   });
+public_users.get('/isbn/:isbn', async function (req, res) {
+    try {
+      const isbn = req.params.isbn;             // Get ISBN from URL params
+      const book = books[isbn];                  // Find the book by ISBN
+  
+      if (book) {
+        console.log("Book found: ", book);
+        res.json(book);                          // Send book details as JSON
+      } else {
+        res.status(404).json({ message: "Book not found" });
+      }
+  
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  });
   
   
 // Get book details based on author
