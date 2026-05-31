@@ -81,23 +81,22 @@ public_users.get('/author/:author', function (req, res) {
 
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
-    const title= req.params.title;
+    const title = req.params.title;
     const booksByTitle = [];
 
-
-        for (let isbn in books) {
+    for (let isbn in books) {
         if (books[isbn].title === title) {
             booksByTitle.push({ isbn: isbn, ...books[isbn] });
         }
     }
 
-
     if (booksByTitle.length > 0) {
-        res.send(booksByTitle);
+        res.json(booksByTitle);
     } else {
-        res.status(404).json({ message: "No books found with this title" });
+        res.status(404).json({ message: "No books found with the given title" });
     }
 });
+
 
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
