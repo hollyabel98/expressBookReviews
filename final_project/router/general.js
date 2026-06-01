@@ -26,9 +26,23 @@ public_users.post("/register", (req,res) => {
 });
 
 // Get the book list available in the shop
+public_users.get('/', function (req, res) {
+    new Promise((resolve, reject) => {
+      resolve(books);  
+    })
+    .then((successMessage) => {
+      res.json(successMessage);  
+    })
+    .catch((error) => {
+      return res.status(400).json({ message: error });
+    });
+  });
+
+
+// Get book by ISBN 
 public_users.get('/isbn/:isbn', function (req, res) {
     const isbn = req.params.isbn;
-  
+ 
     new Promise((resolve, reject) => {
       const book = books[isbn];
       if (book) {
@@ -38,13 +52,12 @@ public_users.get('/isbn/:isbn', function (req, res) {
       }
     })
     .then((book) => {
-      console.log("Book found:", book);
       res.json(book);
     })
     .catch((error) => {
       res.status(404).json({ message: error });
     });
-  });  
+  });
 
   
 // Get book based on author
@@ -72,8 +85,7 @@ public_users.get('/author/:author', function (req, res) {
     .catch((error) => {
       res.status(404).json({ message: error });
     });
-  });
-  
+  }); 
 
 
 // Get books based on title
